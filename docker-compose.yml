@@ -1,0 +1,40 @@
+services:
+  pfsense:
+    build: .
+    container_name: pfsense-kvm-poc
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+    devices:
+      - /dev/kvm:/dev/kvm
+      - /dev/net/tun:/dev/net/tun
+    volumes:
+      - ./data:/data
+      - ./iso:/iso:ro
+    environment:
+      RAM_MB: "2048"
+      CPUS: "4"
+      DISK_SIZE: "20G"
+      INSTALL_ISO: "1"
+      ISO_PATH: "/iso/pfsense.iso"
+      QEMU_AUDIO_DRV: "none"
+    ports:
+      - "5900:5900"
+      - "11080:11080"
+      - "11222:11222"
+    networks:
+      wan:
+      lan:
+
+networks:
+  wan:
+    driver: bridge
+
+  lan:
+    driver: bridge
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+          gateway: 172.30.0.1
