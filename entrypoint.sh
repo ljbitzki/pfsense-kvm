@@ -19,10 +19,12 @@ fi
 ip link add br-lan type bridge 2>/dev/null || true
 ip link set br-lan up
 
-if ip link show eth1 >/dev/null 2>&1; then
-  ip addr flush dev eth1 || true
-  ip link set eth1 up
-  ip link set eth1 master br-lan 2>/dev/null || true
+LAN_DOCKER_IF="eth1"
+
+if ip link show "${LAN_DOCKER_IF}" >/dev/null 2>&1; then
+  ip addr flush dev "${LAN_DOCKER_IF}" || true
+  ip link set "${LAN_DOCKER_IF}" up
+  ip link set "${LAN_DOCKER_IF}" master br-lan 2>/dev/null || true
 fi
 
 ip addr flush dev br-lan || true
@@ -71,6 +73,10 @@ export QEMU_AUDIO_DRV=none
     sleep 2
   done
 ) &
+
+ip link set eth0 down
+sleep 1
+ip link set eth0 up
 
 exec qemu-system-x86_64 \
   ${QEMU_ACCEL} \
